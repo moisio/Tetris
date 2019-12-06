@@ -5,7 +5,6 @@ namespace Tetris
 {
     class Input
     {
-
         //Load table of available keys
         private static Hashtable keytbl = new Hashtable();
 
