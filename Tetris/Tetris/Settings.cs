@@ -25,9 +25,9 @@ namespace Tetris
         //Constructor
         public Settings()
         {
-            Width = 24;
-            Height = 24;
-            Speed = 5;
+            Width = 25;
+            Height = 25;
+            Speed = 1;
             Score = 0;
             GameOver = false;
         }

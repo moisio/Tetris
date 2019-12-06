@@ -39,7 +39,8 @@ namespace Tetris
             Block b = new Block();
             Blocks.Add(b);
             b.X = r.Next(0, canvas.Size.Width / Settings.Width);
-            b.Y = r.Next(0, canvas.Size.Height / Settings.Height);    
+            //b.Y = r.Next(0, canvas.Size.Height / Settings.Height);
+            b.Y = 0;
         }
 
         private void Update(object sender, EventArgs e)
@@ -69,10 +70,17 @@ namespace Tetris
 
                 MoveBlock();
             }
+            canvas.Invalidate();
         }
 
         private void MoveBlock()
         {
+            Blocks.Last().Y++;
+            if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
+            {
+                NewBlock();
+
+            }
             switch (Settings.Dir)
             {
                 case Direction.Right:
@@ -81,11 +89,11 @@ namespace Tetris
                 case Direction.Left:
                     Blocks.Last().X--;
                     break;
-                default:
+                case Direction.Null:
                     Blocks.Last().X += 0;
                     break;
             }
-            Blocks.Last().Y++;
+            
 
 
         }
@@ -102,7 +110,7 @@ namespace Tetris
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
-            Input.ChangeState(e.KeyCode, true);
+            Input.ChangeState(e.KeyCode, false);
         }
 
         private void canvas_Paint(object sender, PaintEventArgs e)
@@ -122,6 +130,11 @@ namespace Tetris
                        
                 }
             }
+        }
+
+        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
         }
     }
 }
