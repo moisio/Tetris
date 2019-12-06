@@ -40,7 +40,7 @@ namespace Tetris
             Blocks.Add(b);
             b.X = r.Next(0, canvas.Size.Width / Settings.Width);
             //b.Y = r.Next(0, canvas.Size.Height / Settings.Height);
-            b.Y = 0;
+            b.Y = -1;
         }
 
         private void Update(object sender, EventArgs e)
@@ -76,11 +76,8 @@ namespace Tetris
         private void MoveBlock()
         {
             Blocks.Last().Y++;
-            if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
-            {
-                NewBlock();
+            
 
-            }
             switch (Settings.Dir)
             {
                 case Direction.Right:
@@ -93,9 +90,40 @@ namespace Tetris
                     Blocks.Last().X += 0;
                     break;
             }
+            CheckStop();
+        }
+
+        private void CheckStop()
+        {
+            if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
+            {
+                Blocks.Last().Stop = true;
+                NewBlock();
+            }
             
-
-
+            if (Blocks.Count > 1)
+            {
+                for (int i = 0; i < Blocks.Count; i++)
+                {
+                    //Checks for collision with another block
+                    if (Blocks.Last().Y == Blocks[i].Y - 1 && Blocks.Last().X == Blocks[i].X)
+                    {
+                        Blocks.Last().Stop = true;
+                        NewBlock();
+                        break;
+                    }
+                }
+            }
+            
+            /*
+            if (Blocks.Last().Stop && Blocks.Last().Y == 0)
+            {
+                //Die
+            }
+            else
+            {
+                NewBlock();
+            }*/
         }
 
         private void Form1_Load(object sender, EventArgs e)
