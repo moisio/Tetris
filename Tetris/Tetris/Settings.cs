@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Tetris
 {
+    public enum Direction
+    {
+        Null,
+        Left,
+        Right
+    };
+
     class Settings
     {
         public static int Width { get; set; }
@@ -13,6 +20,7 @@ namespace Tetris
         public static int Speed { get; set; }
         public static int Score { get; set; }
         public static bool GameOver { get; set; }
+        public static Direction Dir { get; set; }
 
         //Constructor
         public Settings()
