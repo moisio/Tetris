@@ -73,18 +73,57 @@ namespace Tetris
             canvas.Invalidate();
         }
 
+        //First checks if trying to move out of bounds, then checks if trying to move on to another block
+        private bool NoCollision(Direction dir)
+        {
+            if (dir == Direction.Right)
+            {
+                if (Blocks.Last().X == canvas.Size.Width / Settings.Width - 1)
+                {
+                    return false;
+                }
+                for(int i = 0; i < Blocks.Count; i++)
+                {
+                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X - 1)
+                    {
+                        return false;
+                    }
+                } 
+            }
+            else if (dir == Direction.Left)
+            {
+                if (Blocks.Last().X == 0)
+                {
+                    return false;
+                }
+                for (int i = 0; i < Blocks.Count; i++)
+                {
+                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X + 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         private void MoveBlock()
         {
             Blocks.Last().Y++;
-            
-
             switch (Settings.Dir)
             {
                 case Direction.Right:
-                    Blocks.Last().X++;
+                    if (NoCollision(Direction.Right)) 
+                    {
+                        Blocks.Last().X++;
+                    }
                     break;
+
                 case Direction.Left:
-                    Blocks.Last().X--;
+                    if(NoCollision(Direction.Left))
+                    {
+                        Blocks.Last().X--;
+                    }
                     break;
                 case Direction.Null:
                     Blocks.Last().X += 0;
@@ -95,10 +134,11 @@ namespace Tetris
 
         private void CheckStop()
         {
+            //If block reaches the bottom
             if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
             {
                 Blocks.Last().Stop = true;
-                NewBlock();
+                //NewBlock();
             }
             
             if (Blocks.Count > 1)
@@ -109,21 +149,25 @@ namespace Tetris
                     if (Blocks.Last().Y == Blocks[i].Y - 1 && Blocks.Last().X == Blocks[i].X)
                     {
                         Blocks.Last().Stop = true;
-                        NewBlock();
+                        //NewBlock();
                         break;
                     }
                 }
             }
-            
-            /*
-            if (Blocks.Last().Stop && Blocks.Last().Y == 0)
+   
+            if (Blocks.Last().Stop && Blocks.Last().Y < 0)
             {
-                //Die
+                Die();
             }
-            else
+            else if (Blocks.Last().Stop)
             {
                 NewBlock();
-            }*/
+            }
+        }
+
+        private void Die()
+        {
+            Settings.GameOver = true;
         }
 
         private void Form1_Load(object sender, EventArgs e)

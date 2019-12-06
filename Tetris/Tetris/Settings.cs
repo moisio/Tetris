@@ -27,7 +27,7 @@ namespace Tetris
         {
             Width = 25;
             Height = 25;
-            Speed = 1;
+            Speed = 10;
             Score = 0;
             GameOver = false;
         }
