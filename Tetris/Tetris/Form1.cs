@@ -13,6 +13,7 @@ namespace Tetris
     public partial class Form1 : Form
     {
         private List<Block> Blocks = new List<Block>();
+        private List<Sblock> Sblocks = new List<Sblock>();
 
         public Form1()
         {
@@ -36,11 +37,47 @@ namespace Tetris
         private void NewBlock()
         {
             Random r = new Random();
+            Sblock s = new Sblock();
+            Sblocks.Add(s);
+
+            Block a = new Block();
             Block b = new Block();
-            Blocks.Add(b);
-            b.X = r.Next(0, canvas.Size.Width / Settings.Width);
-            //b.Y = r.Next(0, canvas.Size.Height / Settings.Height);
-            b.Y = -1;
+            Block c = new Block();
+
+            int Type = r.Next(0, 3);
+            int Pos = r.Next(1, 16);
+
+            if(Type == 0)
+            {
+                a.X = Pos;
+                a.Y = -1;
+                s.Blocks.Add(a);
+                Blocks.Add(a);
+            } else if (Type == 1)
+            {
+                a.X = Pos;
+                b.X = Pos - 1;
+                a.Y = -1;
+                b.Y = -1;
+                s.Blocks.Add(a);
+                s.Blocks.Add(b);
+                Blocks.Add(a);
+                Blocks.Add(b);
+            } else if (Type == 2)
+            {
+                a.X = Pos;
+                b.X = Pos - 1;
+                c.X = Pos - 1;
+                a.Y = -1;
+                b.Y = -1;
+                c.Y = -2;
+                s.Blocks.Add(a);
+                s.Blocks.Add(b);
+                s.Blocks.Add(c);
+                Blocks.Add(a);
+                Blocks.Add(b);
+                Blocks.Add(c);
+            }
         }
 
         private void Update(object sender, EventArgs e)
@@ -53,7 +90,6 @@ namespace Tetris
                     StartGame();
                 }
             }
-
             else
             {
                 if (Input.KeyPressed(Keys.Right))
@@ -108,42 +144,39 @@ namespace Tetris
                         }
                     }
                 }
-
                 row.Clear();
-            }
-            
-            
-
-            
-
+            }    
         }
 
         //First checks if trying to move out of bounds, then checks if trying to move on to another block
         private bool NoCollision(Direction dir)
         {
+            int limit;
+            
             if (dir == Direction.Right)
             {
-                if (Blocks.Last().X == canvas.Size.Width / Settings.Width - 1)
+                limit = Sblocks.Last().GetGreatestX();
+                if(limit == canvas.Size.Width / Settings.Width - 1)
                 {
                     return false;
-                }
-                for(int i = 0; i < Blocks.Count; i++)
+                }   
+                foreach (Block b in Blocks)
                 {
-                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X - 1)
-                    {
+                    if (Sblocks.Last().GetAllX().Contains(b.X - 1) && Sblocks.Last().GetAllY().Contains(b.Y) && b.Stop) {
                         return false;
                     }
-                } 
+                }
             }
             else if (dir == Direction.Left)
             {
-                if (Blocks.Last().X == 0)
+                limit = Sblocks.Last().GetSmallestX();
+                if (limit == 0)
                 {
                     return false;
                 }
-                for (int i = 0; i < Blocks.Count; i++)
+                foreach (Block b in Blocks)
                 {
-                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X + 1)
+                    if (Sblocks.Last().GetAllX().Contains(b.X + 1) && Sblocks.Last().GetAllY().Contains(b.Y) && b.Stop)
                     {
                         return false;
                     }
@@ -155,24 +188,36 @@ namespace Tetris
         private void MoveBlock()
         {
             FullRow();
-            Blocks.Last().Y++;
+
+            foreach (Block b in Sblocks.Last().Blocks)
+            {   
+                if(!b.Stop)
+                {
+                    b.Y++;
+                }
+            }
             switch (Settings.Dir)
             {
                 case Direction.Right:
                     if (NoCollision(Direction.Right)) 
                     {
-                        Blocks.Last().X++;
+                        foreach (Block b in Sblocks.Last().Blocks)
+                        {
+                            b.X++;
+                        }
                     }
                     break;
 
                 case Direction.Left:
                     if(NoCollision(Direction.Left))
                     {
-                        Blocks.Last().X--;
+                        foreach (Block b in Sblocks.Last().Blocks)
+                        {
+                            b.X--;
+                        }
                     }
                     break;
                 case Direction.Null:
-                    Blocks.Last().X += 0;
                     break;
             }
             CheckStop();
@@ -180,33 +225,37 @@ namespace Tetris
 
         private void CheckStop()
         {
-            //If block reaches the bottom
-            if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
+            foreach(Block b in Sblocks.Last().Blocks)
             {
-                Blocks.Last().Stop = true;
-                //NewBlock();
+                if(b.Y >= 16)
+                {
+                    Sblocks.Last().StopAll();
+                    NewBlock();
+                    break;
+                }
             }
             
-            if (Blocks.Count > 1)
+            for(int i = 0; i < Blocks.Count; i++)
             {
-                for (int i = 0; i < Blocks.Count; i++)
+                foreach(Block b in Sblocks.Last().Blocks)
                 {
-                    //Checks for collision with another block
-                    if (Blocks.Last().Y == Blocks[i].Y - 1 && Blocks.Last().X == Blocks[i].X)
+                    foreach (Block b2 in Blocks)
                     {
-                        Blocks.Last().Stop = true;
-                        //NewBlock();
-                        break;
+                        if (b.Y == b2.Y - 1 && b.X == b2.X && b2.Stop &&!b.Stop)
+                        {
+                            Sblocks.Last().StopAll();
+                            NewBlock();
+                            break;
+                        }
                     }
                 }
             }
-   
             if (Blocks.Last().Stop && Blocks.Last().Y == 0)
             {
                 Die();
             }
             else if (Blocks.Last().Stop)
-            {  
+            {
                 NewBlock();
             }
         }
@@ -233,6 +282,7 @@ namespace Tetris
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
+            /*
             Graphics canvas = e.Graphics;
             if (!Settings.GameOver)
             {
@@ -246,6 +296,23 @@ namespace Tetris
                         Settings.Width, Settings.Height));
                         
                        
+                }
+            }*/
+
+            Graphics canvas = e.Graphics;
+            if(!Settings.GameOver)
+            {
+                Brush brush = Brushes.Aqua;
+                for(int i = 0; i < Sblocks.Count; i++)
+                {
+                    for(int j = 0; j < Sblocks[i].Blocks.Count; j++ )
+                    {
+                        canvas.FillRectangle(
+                        brush,
+                        new Rectangle(Sblocks[i].Blocks[j].X * Settings.Width,
+                        Sblocks[i].Blocks[j].Y * Settings.Height,
+                        Settings.Width, Settings.Height));
+                    }
                 }
             }
         }
