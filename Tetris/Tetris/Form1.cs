@@ -47,6 +47,7 @@ namespace Tetris
         {
             if(Settings.GameOver)
             {
+                MoveBlock();
                 if(Input.KeyPressed(Keys.Enter))
                 {
                     StartGame();
@@ -71,6 +72,42 @@ namespace Tetris
                 MoveBlock();
             }
             canvas.Invalidate();
+        }
+
+        //Checks if there is a full row of blocks and deletes those blocks.
+        private void FullRow()
+        {
+            List<Block> row = new List<Block>();
+
+            for(int i = 16; i >=0; i--)
+            {
+                foreach (Block b in Blocks)
+                {
+                    if (b.Y == i)
+                    {
+                        if (b.Stop)
+                        {
+                            row.Add(b);
+                        } 
+                    }
+                }
+
+                if (row.Count == 17)
+                {
+                    foreach (Block b in row)
+                    {
+                        b.Y = 20;
+                        b.X = 20;
+                    }
+                }
+
+                row.Clear();
+            }
+            
+            
+
+            
+
         }
 
         //First checks if trying to move out of bounds, then checks if trying to move on to another block
@@ -109,6 +146,7 @@ namespace Tetris
 
         private void MoveBlock()
         {
+            FullRow();
             Blocks.Last().Y++;
             switch (Settings.Dir)
             {
@@ -155,12 +193,12 @@ namespace Tetris
                 }
             }
    
-            if (Blocks.Last().Stop && Blocks.Last().Y < 0)
+            if (Blocks.Last().Stop && Blocks.Last().Y == 0)
             {
                 Die();
             }
             else if (Blocks.Last().Stop)
-            {
+            {  
                 NewBlock();
             }
         }
