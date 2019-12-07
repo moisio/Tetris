@@ -42,33 +42,42 @@ namespace Tetris
 
             Block a = new Block();
             Block b = new Block();
-            //Block c = new Block();
+            Block c = new Block();
 
-            int Type = r.Next(0, 2);
+            int Type = r.Next(0, 3);
+            int Pos = r.Next(1, 16);
 
             if(Type == 0)
             {
-                a.X = 8;
+                a.X = Pos;
                 a.Y = -1;
                 s.Blocks.Add(a);
                 Blocks.Add(a);
             } else if (Type == 1)
             {
-                a.X = 8;
-                b.X = 7;
+                a.X = Pos;
+                b.X = Pos - 1;
                 a.Y = -1;
                 b.Y = -1;
                 s.Blocks.Add(a);
                 s.Blocks.Add(b);
                 Blocks.Add(a);
                 Blocks.Add(b);
+            } else if (Type == 2)
+            {
+                a.X = Pos;
+                b.X = Pos - 1;
+                c.X = Pos - 1;
+                a.Y = -1;
+                b.Y = -1;
+                c.Y = -2;
+                s.Blocks.Add(a);
+                s.Blocks.Add(b);
+                s.Blocks.Add(c);
+                Blocks.Add(a);
+                Blocks.Add(b);
+                Blocks.Add(c);
             }
-            
-
-            /*Blocks.Add(b);
-            b.X = r.Next(0, canvas.Size.Width / Settings.Width);
-            //b.Y = r.Next(0, canvas.Size.Height / Settings.Height);
-            b.Y = -1;*/
         }
 
         private void Update(object sender, EventArgs e)
@@ -81,7 +90,6 @@ namespace Tetris
                     StartGame();
                 }
             }
-
             else
             {
                 if (Input.KeyPressed(Keys.Right))
@@ -136,7 +144,6 @@ namespace Tetris
                         }
                     }
                 }
-
                 row.Clear();
             }    
         }
@@ -189,14 +196,11 @@ namespace Tetris
                     b.Y++;
                 }
             }
-
-            //Blocks.Last().Y++;
             switch (Settings.Dir)
             {
                 case Direction.Right:
                     if (NoCollision(Direction.Right)) 
                     {
-                        //Blocks.Last().X++;
                         foreach (Block b in Sblocks.Last().Blocks)
                         {
                             b.X++;
@@ -207,7 +211,6 @@ namespace Tetris
                 case Direction.Left:
                     if(NoCollision(Direction.Left))
                     {
-                        //Blocks.Last().X--;
                         foreach (Block b in Sblocks.Last().Blocks)
                         {
                             b.X--;
@@ -215,7 +218,6 @@ namespace Tetris
                     }
                     break;
                 case Direction.Null:
-                    //Blocks.Last().X += 0;
                     break;
             }
             CheckStop();
@@ -223,13 +225,6 @@ namespace Tetris
 
         private void CheckStop()
         {
-            //If block reaches the bottom
-           /* if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
-            {
-                Blocks.Last().Stop = true;
-                //NewBlock();
-            }*/
-
             foreach(Block b in Sblocks.Last().Blocks)
             {
                 if(b.Y >= 16)
@@ -255,32 +250,14 @@ namespace Tetris
                     }
                 }
             }
-
-            //NewBlock();
-            /*
-            if (Blocks.Count > 1)
-            {
-                for (int i = 0; i < Blocks.Count; i++)
-                {
-                    //Checks for collision with another block
-                    if (Blocks.Last().Y == Blocks[i].Y - 1 && Blocks.Last().X == Blocks[i].X)
-                    {
-                        Blocks.Last().Stop = true;
-                        //NewBlock();
-                        break;
-                    }
-                }
-            }
-            
-   
             if (Blocks.Last().Stop && Blocks.Last().Y == 0)
             {
                 Die();
             }
             else if (Blocks.Last().Stop)
-            {  
+            {
                 NewBlock();
-            }*/
+            }
         }
 
         private void Die()
