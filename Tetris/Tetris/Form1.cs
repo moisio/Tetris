@@ -99,6 +99,14 @@ namespace Tetris
                         b.Y = 20;
                         b.X = 20;
                     }
+
+                    foreach (Block b in Blocks)
+                    {
+                        if(b.Y < i && b.Stop)
+                        {
+                            b.Y += 1;
+                        }
+                    }
                 }
 
                 row.Clear();
