@@ -13,6 +13,7 @@ namespace Tetris
     public partial class Form1 : Form
     {
         private List<Block> Blocks = new List<Block>();
+        private List<Sblock> Sblocks = new List<Sblock>();
 
         public Form1()
         {
@@ -36,11 +37,38 @@ namespace Tetris
         private void NewBlock()
         {
             Random r = new Random();
+            Sblock s = new Sblock();
+            Sblocks.Add(s);
+
+            Block a = new Block();
             Block b = new Block();
-            Blocks.Add(b);
+            //Block c = new Block();
+
+            int Type = r.Next(0, 2);
+
+            if(Type == 0)
+            {
+                a.X = 8;
+                a.Y = -1;
+                s.Blocks.Add(a);
+                Blocks.Add(a);
+            } else if (Type == 1)
+            {
+                a.X = 8;
+                b.X = 7;
+                a.Y = -1;
+                b.Y = -1;
+                s.Blocks.Add(a);
+                s.Blocks.Add(b);
+                Blocks.Add(a);
+                Blocks.Add(b);
+            }
+            
+
+            /*Blocks.Add(b);
             b.X = r.Next(0, canvas.Size.Width / Settings.Width);
             //b.Y = r.Next(0, canvas.Size.Height / Settings.Height);
-            b.Y = -1;
+            b.Y = -1;*/
         }
 
         private void Update(object sender, EventArgs e)
@@ -116,19 +144,34 @@ namespace Tetris
         //First checks if trying to move out of bounds, then checks if trying to move on to another block
         private bool NoCollision(Direction dir)
         {
+            int limit;
+            
             if (dir == Direction.Right)
             {
-                if (Blocks.Last().X == canvas.Size.Width / Settings.Width - 1)
+                limit = Sblocks.Last().GetGreatestX();
+                /*if (Blocks.Last().X == canvas.Size.Width / Settings.Width - 1)
+                {
+                    return false;
+                }*/
+                if(limit == canvas.Size.Width / Settings.Width - 1)
                 {
                     return false;
                 }
-                for(int i = 0; i < Blocks.Count; i++)
+                /*for(int i = 0; i < Blocks.Count; i++)
                 {
                     if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X - 1)
                     {
                         return false;
                     }
-                } 
+                }*/
+                foreach(Block b in Blocks)
+                {
+                    if (Sblocks.Last().GetAllX().Contains(b.X - 1)) {
+                        return false;
+                    }
+                }
+                return true;
+                
             }
             else if (dir == Direction.Left)
             {
@@ -150,24 +193,38 @@ namespace Tetris
         private void MoveBlock()
         {
             FullRow();
-            Blocks.Last().Y++;
+
+            foreach (Block b in Sblocks.Last().Blocks)
+            {
+                b.Y++;
+            }
+
+            //Blocks.Last().Y++;
             switch (Settings.Dir)
             {
                 case Direction.Right:
                     if (NoCollision(Direction.Right)) 
                     {
-                        Blocks.Last().X++;
+                        //Blocks.Last().X++;
+                        foreach (Block b in Sblocks.Last().Blocks)
+                        {
+                            b.X++;
+                        }
                     }
                     break;
 
                 case Direction.Left:
                     if(NoCollision(Direction.Left))
                     {
-                        Blocks.Last().X--;
+                        //Blocks.Last().X--;
+                        foreach (Block b in Sblocks.Last().Blocks)
+                        {
+                            b.X++;
+                        }
                     }
                     break;
                 case Direction.Null:
-                    Blocks.Last().X += 0;
+                    //Blocks.Last().X += 0;
                     break;
             }
             CheckStop();
@@ -176,12 +233,21 @@ namespace Tetris
         private void CheckStop()
         {
             //If block reaches the bottom
-            if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
+           /* if (Blocks.Last().Y >= canvas.Size.Height / Settings.Height - 1)
             {
                 Blocks.Last().Stop = true;
                 //NewBlock();
+            }*/
+
+            foreach(Block b in Sblocks.Last().Blocks)
+            {
+                if(b.Y >= canvas.Size.Height / Settings.Height - 1)
+                {
+                    Sblocks.Last().StopAll();
+                }
             }
             
+            /*
             if (Blocks.Count > 1)
             {
                 for (int i = 0; i < Blocks.Count; i++)
@@ -203,7 +269,7 @@ namespace Tetris
             else if (Blocks.Last().Stop)
             {  
                 NewBlock();
-            }
+            }*/
         }
 
         private void Die()
@@ -228,6 +294,7 @@ namespace Tetris
 
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
+            /*
             Graphics canvas = e.Graphics;
             if (!Settings.GameOver)
             {
@@ -241,6 +308,23 @@ namespace Tetris
                         Settings.Width, Settings.Height));
                         
                        
+                }
+            }*/
+
+            Graphics canvas = e.Graphics;
+            if(!Settings.GameOver)
+            {
+                Brush brush = Brushes.Aqua;
+                for(int i = 0; i < Sblocks.Count; i++)
+                {
+                    for(int j = 0; j < Sblocks[i].Blocks.Count; j++ )
+                    {
+                        canvas.FillRectangle(
+                        brush,
+                        new Rectangle(Sblocks[i].Blocks[j].X * Settings.Width,
+                        Sblocks[i].Blocks[j].Y * Settings.Height,
+                        Settings.Width, Settings.Height));
+                    }
                 }
             }
         }
