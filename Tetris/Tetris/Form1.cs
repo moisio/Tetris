@@ -110,12 +110,7 @@ namespace Tetris
                 }
 
                 row.Clear();
-            }
-            
-            
-
-            
-
+            }    
         }
 
         //First checks if trying to move out of bounds, then checks if trying to move on to another block
