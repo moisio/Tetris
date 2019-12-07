@@ -149,39 +149,27 @@ namespace Tetris
             if (dir == Direction.Right)
             {
                 limit = Sblocks.Last().GetGreatestX();
-                /*if (Blocks.Last().X == canvas.Size.Width / Settings.Width - 1)
-                {
-                    return false;
-                }*/
                 if(limit == canvas.Size.Width / Settings.Width - 1)
                 {
                     return false;
-                }
-                /*for(int i = 0; i < Blocks.Count; i++)
+                }   
+                foreach (Block b in Blocks)
                 {
-                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X - 1)
-                    {
-                        return false;
-                    }
-                }*/
-                foreach(Block b in Blocks)
-                {
-                    if (Sblocks.Last().GetAllX().Contains(b.X - 1)) {
+                    if (Sblocks.Last().GetAllX().Contains(b.X - 1) && Sblocks.Last().GetAllY().Contains(b.Y) && b.Stop) {
                         return false;
                     }
                 }
-                return true;
-                
             }
             else if (dir == Direction.Left)
             {
-                if (Blocks.Last().X == 0)
+                limit = Sblocks.Last().GetSmallestX();
+                if (limit == 0)
                 {
                     return false;
                 }
-                for (int i = 0; i < Blocks.Count; i++)
+                foreach (Block b in Blocks)
                 {
-                    if (Blocks.Last().Y == Blocks[i].Y && Blocks.Last().X == Blocks[i].X + 1)
+                    if (Sblocks.Last().GetAllX().Contains(b.X + 1) && Sblocks.Last().GetAllY().Contains(b.Y) && b.Stop)
                     {
                         return false;
                     }
@@ -195,8 +183,11 @@ namespace Tetris
             FullRow();
 
             foreach (Block b in Sblocks.Last().Blocks)
-            {
-                b.Y++;
+            {   
+                if(!b.Stop)
+                {
+                    b.Y++;
+                }
             }
 
             //Blocks.Last().Y++;
@@ -219,7 +210,7 @@ namespace Tetris
                         //Blocks.Last().X--;
                         foreach (Block b in Sblocks.Last().Blocks)
                         {
-                            b.X++;
+                            b.X--;
                         }
                     }
                     break;
@@ -241,12 +232,31 @@ namespace Tetris
 
             foreach(Block b in Sblocks.Last().Blocks)
             {
-                if(b.Y >= canvas.Size.Height / Settings.Height - 1)
+                if(b.Y >= 16)
                 {
                     Sblocks.Last().StopAll();
+                    NewBlock();
+                    break;
                 }
             }
             
+            for(int i = 0; i < Blocks.Count; i++)
+            {
+                foreach(Block b in Sblocks.Last().Blocks)
+                {
+                    foreach (Block b2 in Blocks)
+                    {
+                        if (b.Y == b2.Y - 1 && b.X == b2.X && b2.Stop &&!b.Stop)
+                        {
+                            Sblocks.Last().StopAll();
+                            NewBlock();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //NewBlock();
             /*
             if (Blocks.Count > 1)
             {
@@ -261,6 +271,7 @@ namespace Tetris
                     }
                 }
             }
+            
    
             if (Blocks.Last().Stop && Blocks.Last().Y == 0)
             {
