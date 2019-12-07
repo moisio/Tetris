@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.canvas = new System.Windows.Forms.PictureBox();
             this.Timer = new System.Windows.Forms.Timer(this.components);
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.canvas)).BeginInit();
             this.SuspendLayout();
             // 
@@ -66,6 +67,7 @@
 
         private System.Windows.Forms.PictureBox canvas;
         private System.Windows.Forms.Timer Timer;
+        private System.Windows.Forms.Timer timer2;
     }
 }
 

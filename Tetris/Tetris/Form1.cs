@@ -24,6 +24,10 @@ namespace Tetris
             Timer.Tick += Update;
             Timer.Start();
 
+            timer2.Interval = 100;
+            timer2.Tick += CheckInput;
+            timer2.Start();
+
             StartGame();
         }
 
@@ -80,6 +84,27 @@ namespace Tetris
             }
         }
 
+        private void CheckInput(object sender, EventArgs e)
+        {
+            if (Input.KeyPressed(Keys.Right))
+            {
+                Settings.Dir = Direction.Right;
+                //Input.ChangeState(Keys.Right, false);
+            }
+            else if (Input.KeyPressed(Keys.Left))
+            {
+                Settings.Dir = Direction.Left;
+                //Input.ChangeState(Keys.Left, false);
+            }
+            else
+            {
+                Settings.Dir = Direction.Null;
+            }
+
+            MoveBlock();
+            canvas.Invalidate();
+        }
+
         private void Update(object sender, EventArgs e)
         {
             if(Settings.GameOver)
@@ -90,7 +115,7 @@ namespace Tetris
                     StartGame();
                 }
             }
-            else
+            /*else
             {
                 if (Input.KeyPressed(Keys.Right))
                 {
@@ -106,6 +131,13 @@ namespace Tetris
                 }
 
                 MoveBlock();
+            }*/
+            foreach (Block b in Sblocks.Last().Blocks)
+            {
+                if (!b.Stop)
+                {
+                    b.Y++;
+                }
             }
             canvas.Invalidate();
         }
@@ -189,13 +221,7 @@ namespace Tetris
         {
             FullRow();
 
-            foreach (Block b in Sblocks.Last().Blocks)
-            {   
-                if(!b.Stop)
-                {
-                    b.Y++;
-                }
-            }
+            
             switch (Settings.Dir)
             {
                 case Direction.Right:
